@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <title>Index by Graheme</title>
+    <meta charset='utf-8'>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel='stylesheet' href='dist/maplibre-gl.css' />
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+        }
+
+        html,
+        body,
+        #map {
+            height: 100%;
+        }
+
+        #checkboxes {
+            position: absolute;
+            background: #fff;
+            top: 0;
+            left: 0;
+            padding: 10px;
+        }
+    </style>
+</head>
+
+<body>
+    <div id='map'></div>
+
+    <script src='dist/maplibre-gl-dev.js'></script>
+    <script>
+
+        var map = window.map = new maplibregl.Map({
+            container: 'map',
+            zoom: 14.5,
+            center: [90.39561, 23.74923],
+            style: 'style.json',
+            hash: 'map'
+        });
+
+        map.addControl(new maplibregl.NavigationControl());
+
+        map.on('load', function () {
+            var hash = window.location.hash.substr(1);
+
+            var result = hash.split('&').reduce(function (res, item) {
+                var parts = item.split('=');
+                res[parts[0]] = parts[1];
+                return res;
+            }, {});
+
+            map.addLayer({
+                "id": "line-labels-swissmap",
+                "type": "symbol",
+                "source": "swissmap",
+                "source-layer": "highway",
+                "layout": {
+                    "text-field": [
+                        "get",
+                        "name"
+                    ],
+                    "text-font": [
+                        "Fira Sans Regular"
+                    ],
+                    "symbol-placement": "line",
+                    "text-keep-upright": true,
+                },
+                "paint": {
+                    "text-halo-color": "white",
+                    "text-color": "#888",
+                    "text-halo-width": 1.5
+                }
+            });
+
+            map.addLayer({
+                'id': 'points',
+                'type': 'symbol',
+                'source': 'qrank',
+                'source-layer': 'qrank',
+                'layout': {
+                    'text-max-width': 4,
+                    'text-field': ['concat', ['get', 'name:en'], '\n', ['get', `name${result.language ? (':' + result.language) : ''}`]],
+                    "text-size": [
+                        "interpolate",
+                        ["linear"],
+                        ["zoom"],
+                        7,
+                        ["*",
+                            1.1,
+                            [
+                                "case",
+                                [">", ["to-number", ["get", "@qrank"]], 10000000],
+                                17,
+                                [">", ["to-number", ["get", "@qrank"]], 1000000],
+                                16,
+                                [">", ["to-number", ["get", "@qrank"]], 100000],
+                                14,
+                                [">", ["to-number", ["get", "@qrank"]], 10000],
+                                12,
+                                11
+                            ]
+                        ],
+                        12,
+                        ["*",
+                            1.5,
+                            [
+                                "case",
+                                [">", ["to-number", ["get", "@qrank"]], 10000000],
+                                17,
+                                [">", ["to-number", ["get", "@qrank"]], 1000000],
+                                16,
+                                [">", ["to-number", ["get", "@qrank"]], 100000],
+                                14,
+                                [">", ["to-number", ["get", "@qrank"]], 10000],
+                                12,
+                                11
+                            ]
+                        ]
+                    ],
+                },
+                'paint': {
+                    'text-halo-color': 'white',
+                    'text-halo-width': 1.5
+                }
+            });
+        });
+
+    </script>
+</body>
+
+</html>
