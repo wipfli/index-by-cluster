@@ -26819,6 +26819,53 @@ class ImageAtlas {
 register('ImagePosition', ImagePosition);
 register('ImageAtlas', ImageAtlas);
 
+class CanvasComparer {
+    constructor() {
+        this.canvas1 = new OffscreenCanvas(100, 100);
+        this.canvas2 = new OffscreenCanvas(100, 100);
+        this.ctx1 = this.canvas1.getContext('2d', { willReadFrequently: true });
+        this.ctx2 = this.canvas2.getContext('2d', { willReadFrequently: true });
+        this.ctx1.font = '24px Arial';
+        this.ctx2.font = '24px Arial';
+    }
+    compareCanvases(string1, string2) {
+        this.ctx1.clearRect(0, 0, this.canvas1.width, this.canvas1.height);
+        this.ctx2.clearRect(0, 0, this.canvas2.width, this.canvas2.height);
+        this.ctx1.fillText(`${string1}${string2}`, 10, 40);
+        const parts = [string1, string2];
+        let offset = 0;
+        for (const part of parts) {
+            this.ctx2.fillText(part, 10 + offset, 40);
+            offset += this.ctx2.measureText(part).width;
+        }
+        const imageData1 = this.ctx1.getImageData(0, 0, this.canvas1.width, this.canvas1.height);
+        const imageData2 = this.ctx2.getImageData(0, 0, this.canvas2.width, this.canvas2.height);
+        if (imageData1.data.length !== imageData2.data.length) {
+            return false;
+        }
+        else {
+            for (let i = 0; i < imageData1.data.length; i++) {
+                if (imageData1.data[i] !== imageData2.data[i]) {
+                    return false;
+                }
+            }
+            return true;
+        }
+    }
+    mergeStrings(parts) {
+        let i = 0;
+        while (i < parts.length - 1) {
+            if (!this.compareCanvases(parts[i], parts[i + 1])) {
+                parts.splice(i, 2, parts[i] + parts[i + 1]);
+                i = 0;
+                continue;
+            }
+            i++;
+        }
+        return parts;
+    }
+}
+
 exports.WritingMode = void 0;
 (function (WritingMode) {
     WritingMode[WritingMode["none"] = 0] = "none";
@@ -27203,6 +27250,7 @@ function shapeLines(shaping, glyphMap, glyphPositions, imagePositions, lines, li
     const justify = textJustify === 'right' ? 1 :
         textJustify === 'left' ? 0 : 0.5;
     let lineIndex = 0;
+    const canvasComparer = new CanvasComparer();
     for (const line of lines) {
         line.trim();
         const lineMaxScale = line.getMaxScale();
@@ -27218,6 +27266,8 @@ function shapeLines(shaping, glyphMap, glyphPositions, imagePositions, lines, li
         }
         const segmenter = new Intl.Segmenter('en', { granularity: 'grapheme' });
         const graphemes = Array.from(segmenter.segment(line.text), s => s.segment);
+        // const graphemes = [...line.text];
+        canvasComparer.mergeStrings(graphemes);
         for (let i = 0; i < graphemes.length; i++) {
             // const section = line.getSection(i);
             const section = line.getSection(0);
@@ -27670,8 +27720,11 @@ class SymbolBucket {
         this.symbolInstances = new SymbolInstanceArray();
     }
     calculateGlyphDependencies(text, stack, textAlongLine, allowVerticalPlacement, doesAllowVerticalWritingMode) {
-        const segmenter = new Intl.Segmenter('my', { granularity: 'grapheme' });
+        const segmenter = new Intl.Segmenter('en', { granularity: 'grapheme' });
         const graphemes = Array.from(segmenter.segment(text), s => s.segment);
+        const canvasComparer = new CanvasComparer();
+        // const graphemes = [...text];
+        canvasComparer.mergeStrings(graphemes);
         for (let i = 0; i < graphemes.length; i++) {
             // OLIVER
             // stack[text.charCodeAt(i).toString()] = true;
@@ -34908,7 +34961,8 @@ class TinySDF {
 
         // make the canvas size big enough to both have the specified buffer around the glyph
         // for "halo", and account for some glyphs possibly being larger than their font size
-        const size = this.size = fontSize + buffer * 4;
+        // const size = this.size = fontSize + buffer * 4;
+        const size = this.size = 200;
 
         const canvas = this._createCanvas(size);
         const ctx = this.ctx = canvas.getContext('2d', {willReadFrequently: true});
@@ -35166,7 +35220,7 @@ class GlyphManager {
                 fontWeight
             });
         }
-        // console.log('tinysdf', id, typeof id);
+        console.log('tinysdf', id, typeof id);
         // OLIVER
         // const char = tinySDF.draw(String.fromCharCode(id));
         const char = tinySDF.draw(id);
