@@ -26861,7 +26861,7 @@ class CanvasComparer {
         while (i < parts.length - 1) {
             if (!this.compareCanvases(parts[i], parts[i + 1])) {
                 parts.splice(i, 2, parts[i] + parts[i + 1]);
-                i = 0;
+                //i = 0;
                 continue;
             }
             i++;
