@@ -35,3 +35,16 @@ It can render complex text on point labels and along lines.
 ## What can it not do?
 
 I don't know yet, but Burmese seems to not work with the `Intl.Segmenter` approach...
+
+## Segement by Word
+
+Segement by word might work better for some languages such as for example Khmer. There is a demo which uses 
+
+```diff
+         const segmenter = new Intl.Segmenter(
+-             'en', {granularity: 'grapheme'}
++             'en', {granularity: 'word'}
+         );
+```
+
+at https://wipfli.github.io/index-by-grapheme/by-word. For this demo, I made the TinySDF canvas 200px large to accommodate for longer text.
