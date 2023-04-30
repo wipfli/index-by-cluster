@@ -47,4 +47,4 @@ Segement by word might work better for some languages such as for example Khmer.
          );
 ```
 
-at https://wipfli.github.io/index-by-grapheme/by-word. For this demo, I made the TinySDF canvas 200px large to accommodate for longer text.
+at https://wipfli.github.io/index-by-grapheme/by-word/. For this demo, I made the TinySDF canvas 200px large to accommodate for longer text.
