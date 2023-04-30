@@ -1,6 +1,10 @@
 # index-by-grapheme
 Index glyphs by grapheme string rather than unicode codepoint in MapLibre GL JS
 
+Feedback welcome in the MapLibre GL JS pull request:
+
+https://github.com/maplibre/maplibre-gl-js/pull/2458
+
 ## demo
 
 <a href="https://wipfli.github.io/index-by-grapheme">
@@ -24,6 +28,7 @@ Languages: Add a `&language=mr` to the URL to see the place labels in Marathi (`
 
 * Use always the TinySDF codepath in MapLibre GL JS (rasterize glyphs in the client)
 * Use [`Intl.Segmenter`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Intl/Segmenter) to split strings into graphemes
+* Run some custom merging of graphemes to get effective graphemes
 * Use graphemes to index the glyph atlas rather than unicode codepoints
 
 Source code: https://github.com/wipfli/maplibre-gl-js/tree/index-by-grapheme
@@ -34,7 +39,7 @@ It can render complex text on point labels and along lines.
 
 ## What can it not do?
 
-I don't know yet, but Burmese seems to not work with the `Intl.Segmenter` approach...
+I don't know...
 
 ## Segement by Word
 
