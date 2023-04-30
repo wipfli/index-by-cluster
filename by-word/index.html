@@ -2,7 +2,7 @@
 <html lang="en">
 
 <head>
-    <title>Index by Graheme</title>
+    <title>Index by Word</title>
     <meta charset='utf-8'>
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <link rel='stylesheet' href='dist/maplibre-gl.css' />
@@ -82,7 +82,7 @@
                 'source': 'qrank',
                 'source-layer': 'qrank',
                 'layout': {
-                    'text-max-width': 4,
+                    'text-max-width': 0,
                     'text-field': ['concat', ['get', 'name:en'], '\n', ['get', `name${result.language ? (':' + result.language) : ''}`]],
                     "text-size": [
                         "interpolate",
