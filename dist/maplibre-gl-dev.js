@@ -26828,12 +26828,11 @@ class CanvasComparer {
         CanvasComparer.ctx1.font = '3px Arial';
         CanvasComparer.ctx2.font = '3px Arial';
     }
-    compareCanvases(string1, string2) {
+    compareCanvases(total, parts) {
         CanvasComparer.ctx1.clearRect(0, 0, CanvasComparer.canvas1.width, CanvasComparer.canvas1.height);
         CanvasComparer.ctx2.clearRect(0, 0, CanvasComparer.canvas2.width, CanvasComparer.canvas2.height);
-        CanvasComparer.ctx1.fillText(`${string1}${string2}`, 0, 5);
-        const offset1 = CanvasComparer.ctx1.measureText(`${string1}${string2}`).width;
-        const parts = [string1, string2];
+        CanvasComparer.ctx1.fillText(total, 0, 5);
+        const offset1 = CanvasComparer.ctx1.measureText(total).width;
         let offset2 = 0;
         for (const part of parts) {
             CanvasComparer.ctx2.fillText(part, offset2, 5);
@@ -26862,7 +26861,7 @@ class CanvasComparer {
     mergeStrings(parts) {
         let i = 0;
         while (i < parts.length - 1) {
-            if (!this.compareCanvases(parts[i], parts[i + 1])) {
+            if (!this.compareCanvases(`${parts[i]}${parts[i + 1]}`, [parts[i], parts[i + 1]])) {
                 parts.splice(i, 2, parts[i] + parts[i + 1]);
                 //i = 0; // commenting out this might require grapheme clusters in the first place
                 continue;
@@ -26871,9 +26870,12 @@ class CanvasComparer {
         }
         return parts;
     }
+    isLatin(text) {
+        return /^[a-zA-Z\u00C0-\u024F\u1E00-\u1EFF\s\-'",.;:()!?]+$/u.test(text);
+    }
 }
-CanvasComparer.canvas1 = new OffscreenCanvas(50, 8);
-CanvasComparer.canvas2 = new OffscreenCanvas(50, 8);
+CanvasComparer.canvas1 = new OffscreenCanvas(100, 8);
+CanvasComparer.canvas2 = new OffscreenCanvas(100, 8);
 CanvasComparer.ctx1 = CanvasComparer.canvas1.getContext('2d', { willReadFrequently: true });
 CanvasComparer.ctx2 = CanvasComparer.canvas2.getContext('2d', { willReadFrequently: true });
 
@@ -27278,7 +27280,9 @@ function shapeLines(shaping, glyphMap, glyphPositions, imagePositions, lines, li
         const segmenter = new Intl.Segmenter('en', { granularity: 'grapheme' });
         const graphemes = Array.from(segmenter.segment(line.text), s => s.segment);
         // const graphemes = [...line.text];
-        canvasComparer.mergeStrings(graphemes);
+        if (!canvasComparer.isLatin(line.text) && !canvasComparer.compareCanvases(line.text, graphemes)) {
+            canvasComparer.mergeStrings(graphemes);
+        }
         for (let i = 0; i < graphemes.length; i++) {
             // const section = line.getSection(i);
             const section = line.getSection(0);
@@ -27735,7 +27739,10 @@ class SymbolBucket {
         const graphemes = Array.from(segmenter.segment(text), s => s.segment);
         const canvasComparer = new CanvasComparer();
         // const graphemes = [...text];
-        canvasComparer.mergeStrings(graphemes);
+        console.log('isLatin', text, canvasComparer.isLatin(text));
+        if (!canvasComparer.isLatin(text) && !canvasComparer.compareCanvases(text, graphemes)) {
+            canvasComparer.mergeStrings(graphemes);
+        }
         for (let i = 0; i < graphemes.length; i++) {
             // OLIVER
             // stack[text.charCodeAt(i).toString()] = true;
