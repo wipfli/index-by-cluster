@@ -26821,29 +26821,32 @@ register('ImageAtlas', ImageAtlas);
 
 class CanvasComparer {
     constructor() {
-        this.canvas1 = new OffscreenCanvas(100, 100);
-        this.canvas2 = new OffscreenCanvas(100, 100);
-        this.ctx1 = this.canvas1.getContext('2d', { willReadFrequently: true });
-        this.ctx2 = this.canvas2.getContext('2d', { willReadFrequently: true });
-        this.ctx1.font = '12px Arial';
-        this.ctx2.font = '12px Arial';
+        // this.canvas1 = new OffscreenCanvas(50, 15);
+        // this.canvas2 = new OffscreenCanvas(50, 15);
+        // this.ctx1 = this.canvas1.getContext('2d', { willReadFrequently: true });
+        // this.ctx2 = this.canvas2.getContext('2d', { willReadFrequently: true });
+        CanvasComparer.ctx1.font = '3px Arial';
+        CanvasComparer.ctx2.font = '3px Arial';
     }
     compareCanvases(string1, string2) {
-        this.ctx1.clearRect(0, 0, this.canvas1.width, this.canvas1.height);
-        this.ctx2.clearRect(0, 0, this.canvas2.width, this.canvas2.height);
-        this.ctx1.fillText(`${string1}${string2}`, 0, 20);
-        const offset1 = this.ctx1.measureText(`${string1}${string2}`).width;
+        CanvasComparer.ctx1.clearRect(0, 0, CanvasComparer.canvas1.width, CanvasComparer.canvas1.height);
+        CanvasComparer.ctx2.clearRect(0, 0, CanvasComparer.canvas2.width, CanvasComparer.canvas2.height);
+        CanvasComparer.ctx1.fillText(`${string1}${string2}`, 0, 5);
+        const offset1 = CanvasComparer.ctx1.measureText(`${string1}${string2}`).width;
         const parts = [string1, string2];
         let offset2 = 0;
         for (const part of parts) {
-            this.ctx2.fillText(part, offset2, 20);
-            offset2 += this.ctx2.measureText(part).width;
+            CanvasComparer.ctx2.fillText(part, offset2, 5);
+            offset2 += CanvasComparer.ctx2.measureText(part).width;
         }
         if (offset1 !== offset2) {
             return false;
         }
-        const imageData1 = this.ctx1.getImageData(0, 0, offset2, 30);
-        const imageData2 = this.ctx2.getImageData(0, 0, offset2, 30);
+        if (offset1 === 0) {
+            return false;
+        }
+        const imageData1 = CanvasComparer.ctx1.getImageData(0, 0, offset2, 8);
+        const imageData2 = CanvasComparer.ctx2.getImageData(0, 0, offset2, 8);
         if (imageData1.data.length !== imageData2.data.length) {
             return false;
         }
@@ -26861,7 +26864,7 @@ class CanvasComparer {
         while (i < parts.length - 1) {
             if (!this.compareCanvases(parts[i], parts[i + 1])) {
                 parts.splice(i, 2, parts[i] + parts[i + 1]);
-                //i = 0;
+                //i = 0; // commenting out this might require grapheme clusters in the first place
                 continue;
             }
             i++;
@@ -26869,6 +26872,10 @@ class CanvasComparer {
         return parts;
     }
 }
+CanvasComparer.canvas1 = new OffscreenCanvas(50, 8);
+CanvasComparer.canvas2 = new OffscreenCanvas(50, 8);
+CanvasComparer.ctx1 = CanvasComparer.canvas1.getContext('2d', { willReadFrequently: true });
+CanvasComparer.ctx2 = CanvasComparer.canvas2.getContext('2d', { willReadFrequently: true });
 
 exports.WritingMode = void 0;
 (function (WritingMode) {
