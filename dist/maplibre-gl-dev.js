@@ -27739,7 +27739,7 @@ class SymbolBucket {
         const graphemes = Array.from(segmenter.segment(text), s => s.segment);
         const canvasComparer = new CanvasComparer();
         // const graphemes = [...text];
-        console.log('isLatin', text, canvasComparer.isLatin(text));
+        // console.log('isLatin', text, canvasComparer.isLatin(text));
         if (!canvasComparer.isLatin(text) && !canvasComparer.compareCanvases(text, graphemes)) {
             canvasComparer.mergeStrings(graphemes);
         }
