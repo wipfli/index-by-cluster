@@ -27255,6 +27255,7 @@ function getAnchorAlignment(anchor) {
     }
     return { horizontalAlign, verticalAlign };
 }
+const textCache = {};
 function shapeLines(shaping, glyphMap, glyphPositions, imagePositions, lines, lineHeight, textAnchor, textJustify, writingMode, spacing, allowVerticalPlacement, layoutTextSizeThisZoom) {
     let x = 0;
     let y = SHAPING_DEFAULT_OFFSET;
@@ -27277,11 +27278,21 @@ function shapeLines(shaping, glyphMap, glyphPositions, imagePositions, lines, li
             ++lineIndex;
             continue;
         }
-        const segmenter = new Intl.Segmenter('en', { granularity: 'grapheme' });
-        const graphemes = Array.from(segmenter.segment(line.text), s => s.segment);
-        // const graphemes = [...line.text];
-        if (!canvasComparer.isLatin(line.text) && !canvasComparer.compareCanvases(line.text, graphemes)) {
-            canvasComparer.mergeStrings(graphemes);
+        let graphemes = [];
+        if (line.text in textCache) {
+            // console.log('cache hit', line.text);
+            graphemes = textCache[line.text];
+        }
+        else {
+            // console.log('cache miss', line.text);
+            const segmenter = new Intl.Segmenter('en', { granularity: 'grapheme' });
+            graphemes = Array.from(segmenter.segment(line.text), s => s.segment);
+            // const graphemes = [...line.text];
+            // console.log('shaping', line.text);
+            if (!canvasComparer.isLatin(line.text) && !canvasComparer.compareCanvases(line.text, graphemes)) {
+                canvasComparer.mergeStrings(graphemes);
+            }
+            textCache[line.text] = [...graphemes];
         }
         for (let i = 0; i < graphemes.length; i++) {
             // const section = line.getSection(i);
@@ -27726,6 +27737,7 @@ class SymbolBucket {
         }
         this.stateDependentLayerIds = this.layers.filter((l) => l.isStateDependent()).map((l) => l.id);
         this.sourceID = options.sourceID;
+        this.textCache = {};
     }
     createArrays() {
         this.text = new SymbolBuffers(new ProgramConfigurationSet(this.layers, this.zoom, property => /^text/.test(property)));
@@ -27735,13 +27747,22 @@ class SymbolBucket {
         this.symbolInstances = new SymbolInstanceArray();
     }
     calculateGlyphDependencies(text, stack, textAlongLine, allowVerticalPlacement, doesAllowVerticalWritingMode) {
-        const segmenter = new Intl.Segmenter('en', { granularity: 'grapheme' });
-        const graphemes = Array.from(segmenter.segment(text), s => s.segment);
-        const canvasComparer = new CanvasComparer();
-        // const graphemes = [...text];
-        // console.log('isLatin', text, canvasComparer.isLatin(text));
-        if (!canvasComparer.isLatin(text) && !canvasComparer.compareCanvases(text, graphemes)) {
-            canvasComparer.mergeStrings(graphemes);
+        let graphemes = [];
+        if (text in this.textCache) {
+            // console.log('symbol_bucket cache hit', text);
+            graphemes = this.textCache[text];
+        }
+        else {
+            // console.log('symbol bucket cache miss', text);
+            const segmenter = new Intl.Segmenter('en', { granularity: 'grapheme' });
+            graphemes = Array.from(segmenter.segment(text), s => s.segment);
+            // const graphemes = [...line.text];
+            // console.log('shaping', line.text);
+            const canvasComparer = new CanvasComparer();
+            if (!canvasComparer.isLatin(text) && !canvasComparer.compareCanvases(text, graphemes)) {
+                canvasComparer.mergeStrings(graphemes);
+            }
+            this.textCache[text] = [...graphemes];
         }
         for (let i = 0; i < graphemes.length; i++) {
             // OLIVER
