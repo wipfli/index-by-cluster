@@ -1,4 +1,4 @@
-# index-by-cluster
+# index-by-grapheme
 
 Index glyphs by cluster string rather than unicode codepoint in MapLibre GL JS
 
