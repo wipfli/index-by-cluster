@@ -73,11 +73,17 @@
                 }
             });
 
+            const pointLabelFirstLine = [
+                'coalesce',
+                ['get', '@name:en'],
+                ['get', 'name']
+            ];
+
             let pointLabelSecondLine = [
                 'case',
-                ['!=', ['get', '@language'], '""'],
-                ['get', ['concat', 'name:', ['slice', ['get', '@language'], 1, 3]]],
-                ['get', `name${result.language ? (':' + result.language) : ''}`]
+                ['has', '@language'],
+                ['get', ['concat', '@name:', ['get', '@language']]],
+                ['get', `@name${result.language ? (':' + result.language) : ''}`]
             ];
 
             if (result.language) {
@@ -91,7 +97,7 @@
                 'source-layer': 'qrank',
                 'layout': {
                     'text-max-width': 0,
-                    'text-field': ['format', ['get', 'name:en'], {}, '\n', {}, pointLabelSecondLine, {}],
+                    'text-field': ['format', pointLabelFirstLine, {}, '\n', {}, pointLabelSecondLine, {}],
                     "text-size": [
                         "interpolate",
                         ["linear"],

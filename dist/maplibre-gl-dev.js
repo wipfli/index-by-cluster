@@ -1002,6 +1002,28 @@ function arrayBufferToImage(data, callback) {
     const blob = new Blob([new Uint8Array(data)], { type: 'image/png' });
     img.src = data.byteLength ? URL.createObjectURL(blob) : transparentPngUrl;
 }
+function markedStringToParts(markedString) {
+    const result = [];
+    const customJoiningCharacter = '@';
+    if (markedString.length === 0 || markedString[0] === customJoiningCharacter) {
+        return result;
+    }
+    let currentPart = markedString[0];
+    for (let i = 1; i < markedString.length; ++i) {
+        if (markedString[i] === customJoiningCharacter) {
+            continue;
+        }
+        if (markedString[i - 1] === customJoiningCharacter) {
+            currentPart += markedString[i];
+        }
+        else {
+            result.push(currentPart);
+            currentPart = markedString[i];
+        }
+    }
+    result.push(currentPart);
+    return result;
+}
 
 const now = typeof performance !== 'undefined' && performance && performance.now ?
     performance.now.bind(performance) :
@@ -26819,66 +26841,6 @@ class ImageAtlas {
 register('ImagePosition', ImagePosition);
 register('ImageAtlas', ImageAtlas);
 
-class CanvasComparer {
-    constructor() {
-        // this.canvas1 = new OffscreenCanvas(50, 15);
-        // this.canvas2 = new OffscreenCanvas(50, 15);
-        // this.ctx1 = this.canvas1.getContext('2d', { willReadFrequently: true });
-        // this.ctx2 = this.canvas2.getContext('2d', { willReadFrequently: true });
-        CanvasComparer.ctx1.font = '3px Arial';
-        CanvasComparer.ctx2.font = '3px Arial';
-    }
-    compareCanvases(total, parts) {
-        CanvasComparer.ctx1.clearRect(0, 0, CanvasComparer.canvas1.width, CanvasComparer.canvas1.height);
-        CanvasComparer.ctx2.clearRect(0, 0, CanvasComparer.canvas2.width, CanvasComparer.canvas2.height);
-        CanvasComparer.ctx1.fillText(total, 0, 5);
-        const offset1 = CanvasComparer.ctx1.measureText(total).width;
-        let offset2 = 0;
-        for (const part of parts) {
-            CanvasComparer.ctx2.fillText(part, offset2, 5);
-            offset2 += CanvasComparer.ctx2.measureText(part).width;
-        }
-        if (offset1 !== offset2) {
-            return false;
-        }
-        if (offset1 === 0) {
-            return false;
-        }
-        const imageData1 = CanvasComparer.ctx1.getImageData(0, 0, offset2, 8);
-        const imageData2 = CanvasComparer.ctx2.getImageData(0, 0, offset2, 8);
-        if (imageData1.data.length !== imageData2.data.length) {
-            return false;
-        }
-        else {
-            for (let i = 0; i < imageData1.data.length; i++) {
-                if (imageData1.data[i] !== imageData2.data[i]) {
-                    return false;
-                }
-            }
-            return true;
-        }
-    }
-    mergeStrings(parts) {
-        let i = 0;
-        while (i < parts.length - 1) {
-            if (!this.compareCanvases(`${parts[i]}${parts[i + 1]}`, [parts[i], parts[i + 1]])) {
-                parts.splice(i, 2, parts[i] + parts[i + 1]);
-                //i = 0; // commenting out this might require grapheme clusters in the first place
-                continue;
-            }
-            i++;
-        }
-        return parts;
-    }
-    isLatin(text) {
-        return /^[a-zA-Z\u00C0-\u024F\u1E00-\u1EFF\s\-'",.;:()!?]+$/u.test(text);
-    }
-}
-CanvasComparer.canvas1 = new OffscreenCanvas(100, 8);
-CanvasComparer.canvas2 = new OffscreenCanvas(100, 8);
-CanvasComparer.ctx1 = CanvasComparer.canvas1.getContext('2d', { willReadFrequently: true });
-CanvasComparer.ctx2 = CanvasComparer.canvas2.getContext('2d', { willReadFrequently: true });
-
 exports.WritingMode = void 0;
 (function (WritingMode) {
     WritingMode[WritingMode["none"] = 0] = "none";
@@ -27264,7 +27226,7 @@ function shapeLines(shaping, glyphMap, glyphPositions, imagePositions, lines, li
     const justify = textJustify === 'right' ? 1 :
         textJustify === 'left' ? 0 : 0.5;
     let lineIndex = 0;
-    const canvasComparer = new CanvasComparer();
+    //const canvasComparer = new CanvasComparer();
     for (const line of lines) {
         line.trim();
         const lineMaxScale = line.getMaxScale();
@@ -27278,22 +27240,25 @@ function shapeLines(shaping, glyphMap, glyphPositions, imagePositions, lines, li
             ++lineIndex;
             continue;
         }
-        let graphemes = [];
-        if (line.text in textCache) {
-            // console.log('cache hit', line.text);
-            graphemes = textCache[line.text];
-        }
-        else {
-            // console.log('cache miss', line.text);
-            const segmenter = new Intl.Segmenter('en', { granularity: 'grapheme' });
-            graphemes = Array.from(segmenter.segment(line.text), s => s.segment);
-            // const graphemes = [...line.text];
-            // console.log('shaping', line.text);
-            if (!canvasComparer.isLatin(line.text) && !canvasComparer.compareCanvases(line.text, graphemes)) {
-                canvasComparer.mergeStrings(graphemes);
-            }
-            textCache[line.text] = [...graphemes];
-        }
+        // let graphemes = [];
+        // if (line.text in textCache) {
+        //     // console.log('cache hit', line.text);
+        //     graphemes = textCache[line.text];
+        // } else {
+        //     // console.log('cache miss', line.text);
+        //     // const segmenter = new Intl.Segmenter(
+        //     //     'en', {granularity: 'grapheme'}
+        //     // );
+        //     // graphemes = Array.from(segmenter.segment(line.text), s => s.segment);
+        //     const graphemes = [...line.text];
+        //     // console.log('shaping', line.text);
+        //     // if (!canvasComparer.isLatin(line.text) && !canvasComparer.compareCanvases(line.text, graphemes)) {
+        //     //     canvasComparer.mergeStrings(graphemes);
+        //     // }
+        //     textCache[line.text] = [...graphemes];
+        // }
+        // const graphemes = [...line.text];
+        const graphemes = markedStringToParts(line.text);
         for (let i = 0; i < graphemes.length; i++) {
             // const section = line.getSection(i);
             const section = line.getSection(0);
@@ -27747,23 +27712,26 @@ class SymbolBucket {
         this.symbolInstances = new SymbolInstanceArray();
     }
     calculateGlyphDependencies(text, stack, textAlongLine, allowVerticalPlacement, doesAllowVerticalWritingMode) {
-        let graphemes = [];
-        if (text in this.textCache) {
-            // console.log('symbol_bucket cache hit', text);
-            graphemes = this.textCache[text];
-        }
-        else {
-            // console.log('symbol bucket cache miss', text);
-            const segmenter = new Intl.Segmenter('en', { granularity: 'grapheme' });
-            graphemes = Array.from(segmenter.segment(text), s => s.segment);
-            // const graphemes = [...line.text];
-            // console.log('shaping', line.text);
-            const canvasComparer = new CanvasComparer();
-            if (!canvasComparer.isLatin(text) && !canvasComparer.compareCanvases(text, graphemes)) {
-                canvasComparer.mergeStrings(graphemes);
-            }
-            this.textCache[text] = [...graphemes];
-        }
+        // let graphemes = [];
+        // if (text in this.textCache) {
+        //     // console.log('symbol_bucket cache hit', text);
+        //     graphemes = this.textCache[text];
+        // } else {
+        //     // console.log('symbol bucket cache miss', text);
+        //     // const segmenter = new Intl.Segmenter(
+        //     //     'en', {granularity: 'grapheme'}
+        //     // );
+        //     // graphemes = Array.from(segmenter.segment(text), s => s.segment);
+        //     const graphemes = [...text];
+        //     // console.log('shaping', line.text);
+        //     // const canvasComparer = new CanvasComparer();
+        //     // if (!canvasComparer.isLatin(text) && !canvasComparer.compareCanvases(text, graphemes)) {
+        //     //     canvasComparer.mergeStrings(graphemes);
+        //     // }
+        //     this.textCache[text] = [...graphemes];
+        // }
+        // const graphemes = [...text];
+        const graphemes = markedStringToParts(text);
         for (let i = 0; i < graphemes.length; i++) {
             // OLIVER
             // stack[text.charCodeAt(i).toString()] = true;
@@ -35263,7 +35231,19 @@ class GlyphManager {
         console.log('tinysdf', id, typeof id);
         // OLIVER
         // const char = tinySDF.draw(String.fromCharCode(id));
+        // let char;
+        // const cachedChar = localStorage.getItem(id as any);
+        // if (cachedChar) {
+        //     console.log('cached');
+        //     char = JSON.parse(cachedChar);
+        //     char.data = Object.values(char.data);
+        // } else {
+        //     console.log('not cached');
+        //     char = tinySDF.draw(id as any);
+        //     localStorage.setItem(id as any, JSON.stringify(char));
+        // }
         const char = tinySDF.draw(id);
+        // console.log('char', char, JSON.stringify(char));
         /**
          * TinySDF's "top" is the distance from the alphabetic baseline to the top of the glyph.
          * Server-generated fonts specify "top" relative to an origin above the em box (the origin
