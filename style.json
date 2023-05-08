@@ -10,6 +10,10 @@
             "type": "vector",
             "url": "https://wipfli.github.io/swiss-map/tilejson-qrank.json"
         },
+        "roadnames": {
+            "type": "vector",
+            "url": "https://wipfli.github.io/swiss-map/tilejson-roadnames.json"
+        },
         "landcover": {
             "type": "vector",
             "url": "https://wipfli.github.io/swiss-map/tilejson-h3-landcover.json"
