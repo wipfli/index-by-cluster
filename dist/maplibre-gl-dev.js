@@ -34988,9 +34988,9 @@ class TinySDF {
     }
 
     _createCanvas(size) {
-        // const canvas = document.createElement('canvas');
-        // canvas.width = canvas.height = size;
-        const canvas = new OffscreenCanvas(size, size);
+        const canvas = document.createElement('canvas');
+        canvas.width = canvas.height = size;
+        // const canvas = new OffscreenCanvas(size, size);
         return canvas;
     }
 
