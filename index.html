@@ -34,25 +34,26 @@
     <script src='dist/maplibre-gl-dev.js'></script>
     <script>
 
+        var hash = window.location.hash.substr(1);
+
+        var result = hash.split('&').reduce(function (res, item) {
+            var parts = item.split('=');
+            res[parts[0]] = parts[1];
+            return res;
+        }, {});
+
         var map = window.map = new maplibregl.Map({
             container: 'map',
             zoom: 14.5,
             center: [90.39561, 23.74923],
             style: 'style.json',
-            hash: 'map'
+            hash: 'map',
+            localIdeographFontFamily: result.fontFamily ? result.fontFamily : "sans-serif"
         });
 
         map.addControl(new maplibregl.NavigationControl());
 
         map.on('load', function () {
-            var hash = window.location.hash.substr(1);
-
-            var result = hash.split('&').reduce(function (res, item) {
-                var parts = item.split('=');
-                res[parts[0]] = parts[1];
-                return res;
-            }, {});
-
             map.addLayer({
                 "id": "line-labels-swissmap",
                 "type": "symbol",
