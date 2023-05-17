@@ -1,5 +1,14 @@
 <!DOCTYPE html>
 <html>
+<head>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC" rel="stylesheet">
+
+</head>
+
 <body>
 
 <canvas id="myCanvas" width="200" height="100"
@@ -10,8 +19,13 @@ Your browser does not support the canvas element.
 <script>
 var canvas = document.getElementById("myCanvas");
 var ctx = canvas.getContext("2d");
-ctx.font = "30px 'Noto Sans CJK JP'";
+ctx.font = "30px 'Noto Sans JP'";
 ctx.fillText("今",10,50);
+
+ctx.font = "30px 'Noto Sans SC'";
+ctx.fillText("今",50,50);
+
+
 </script>
 
 </body>
