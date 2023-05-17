@@ -2,18 +2,11 @@
 <html>
 <head>
 
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP" rel="stylesheet">
-<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC" rel="stylesheet">
-<link href="https://fonts.googleapis.com/css2?family=Noto+Nastaliq+Urdu" rel="stylesheet">
-
-
 </head>
 
 <body>
 
-<canvas id="myCanvas" width="200" height="100"
+<canvas id="myCanvas" width="300" height="100"
 style="border:1px solid #d3d3d3;">
 Your browser does not support the canvas element.
 </canvas>
@@ -21,17 +14,19 @@ Your browser does not support the canvas element.
 <script>
 var canvas = document.getElementById("myCanvas");
 var ctx = canvas.getContext("2d");
-ctx.font = "30px 'Noto Sans JP'";
-ctx.fillText("今",10,50);
+ctx.font = "30px 'Hiragino Kaku Gothic Pro', 'ヒラギノ角ゴ Pro W3', 'Meiryo', 'メイリオ', 'Yu Gothic', '游ゴシック', 'Noto Sans JP', 'Noto Sans Japanese', 'Noto Sans CJK JP', 'Arial Unicode MS', Arial, sans-serif";
+ctx.fillText("返",10,50);
 
-ctx.font = "30px 'Noto Sans SC'";
-ctx.fillText("今",50,50);
+ctx.font = "30px 'PingFang SC', '苹方', 'Microsoft YaHei', '微软雅黑', 'Source Han Sans SC', '思源黑体', 'Noto Sans SC', '思源黑体', 'WenQuanYi Micro Hei', '文泉驿微米黑', 'Arial Unicode MS', Arial, sans-serif";
+ctx.fillText("返",50,50);
 
-ctx.font = "30px 'Noto Nastaliq Urdu'";
-ctx.fillText("پَاکِسْتَان ",100,50);
+ctx.font = "30 px 'Apple SD Gothic Neo', '애플 SD 산돌고딕 Neo', 'Malgun Gothic', '맑은 고딕', 'Nanum Gothic', '나눔 고딕', 'Dotum', '돋움', 'Arial Unicode MS', Arial, sans-serif";
+ctx.fillText("返",90,50);
+
+ctx.font = "30px 'Amiri', 'Lateef', 'Scheherazade', 'Noto Nastaliq Urdu', 'Noto Naskh Arabic', 'Arial', sans-serif";
+ctx.fillText("پَاکِسْتَان ",130,50);
 
 
 </script>
-
 </body>
 </html>
