@@ -34974,7 +34974,7 @@ class TinySDF {
         const canvas = this._createCanvas(size);
         const ctx = this.ctx = canvas.getContext('2d', {willReadFrequently: true});
         // ctx.font = `${fontStyle} ${fontWeight} ${fontSize}px ${fontFamily}`;
-        ctx.font = `${fontStyle} ${fontWeight} ${fontSize}px 'Noto Nastaliq Urdu',Verdana,sans`;
+        ctx.font = `${fontStyle} ${fontWeight} ${fontSize}px 'Jameel Noori Nastaleeq', 'Urdu Typesetting', 'Noto Nastaliq Urdu', 'Noto Nastaliq Urdu Draft', 'Hussaini Nastaleeq', 'AlQalam Taj Nastaleeq', IranNastaliq, 'Awami Nastaliq', 'Awami Nastaliq Beta3', 'Awami Nastaliq Beta2', 'Awami Nastaliq Beta1', 'Nafees Nastaleeq', 'Nafees Nastaleeq v1.01', 'Pak Nastaleeq', 'PDMS_Jauhar', 'Alvi Lahori Nastaleeq', Verdana, sans`;
 
         ctx.textBaseline = 'alphabetic';
         ctx.textAlign = 'left'; // Necessary so that RTL text doesn't have different alignment
