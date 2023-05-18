@@ -34974,6 +34974,7 @@ class TinySDF {
         const canvas = this._createCanvas(size);
         const ctx = this.ctx = canvas.getContext('2d', {willReadFrequently: true});
         ctx.font = `${fontStyle} ${fontWeight} ${fontSize}px ${fontFamily}`;
+        // ctx.font = `${fontStyle} ${fontWeight} ${fontSize}px 'Jameel Noori Nastaleeq', 'Urdu Typesetting', 'Noto Nastaliq Urdu', 'Noto Nastaliq Urdu Draft', 'Hussaini Nastaleeq', 'AlQalam Taj Nastaleeq', IranNastaliq, 'Awami Nastaliq', 'Awami Nastaliq Beta3', 'Awami Nastaliq Beta2', 'Awami Nastaliq Beta1', 'Nafees Nastaleeq', 'Nafees Nastaleeq v1.01', 'Pak Nastaleeq', 'PDMS_Jauhar', 'Alvi Lahori Nastaleeq', Verdana, sans`;
 
         ctx.textBaseline = 'alphabetic';
         ctx.textAlign = 'left'; // Necessary so that RTL text doesn't have different alignment
@@ -35129,10 +35130,12 @@ class GlyphManager {
             // console.log('glyph_manager', glyph);
             if (glyph) {
                 entry.glyphs[id] = glyph;
+                // console.log('tinysdf', id, glyph)
                 callback(null, { stack, id, glyph });
                 return;
             }
-            const range = Math.floor(id / 256);
+            // console.log('glyph done')
+            const range = Math.floor(id.charCodeAt(0) / 256);
             if (range * 256 > 65535) {
                 callback(new Error('glyphs > 65535 not supported'));
                 return;
@@ -35151,8 +35154,9 @@ class GlyphManager {
                 GlyphManager.loadGlyphRange(stack, range, this.url, this.requestManager, (err, response) => {
                     if (response) {
                         for (const id in response) {
+                            // console.log('hello', id, String.fromCharCode(+id), response[+id]);
                             if (!this._doesCharSupportLocalGlyph(+id)) {
-                                entry.glyphs[+id] = response[+id];
+                                entry.glyphs[String.fromCharCode(+id)] = response[+id];
                             }
                         }
                         entry.ranges[range] = true;
@@ -35168,7 +35172,14 @@ class GlyphManager {
                     callback(err);
                 }
                 else if (result) {
-                    callback(null, { stack, id, glyph: result[id] || null });
+                    // console.log('hi', id, id.charCodeAt(0), result[id.charCodeAt(0)]);
+                    let glyph = null;
+                    if (result[id.charCodeAt(0)]) {
+                        glyph = { ...result[id.charCodeAt(0)] };
+                        glyph.id = id;
+                    }
+                    // console.log('glyph is', glyph);
+                    callback(null, { stack, id, glyph: glyph || null });
                 }
             });
         }, (err, glyphs) => {
@@ -35190,7 +35201,7 @@ class GlyphManager {
         });
     }
     _doesCharSupportLocalGlyph(id) {
-        return true;
+        return !(/^[\x00-\x7F]*$/.test(id));
         /* eslint-disable new-cap */
         return !!this.localIdeographFontFamily &&
             (performance.unicodeBlockLookup['CJK Unified Ideographs'](id) ||
